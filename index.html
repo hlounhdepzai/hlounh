@@ -173,15 +173,15 @@
       margin-top: 5px;
     }
 
-    #player-controls {
+    .music-indicator {
       position: fixed;
       bottom: 85px;
       right: 20px;
       background-color: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: 10px;
-      padding: 12px;
-      width: 250px;
+      padding: 8px 12px;
+      font-size: 12px;
       z-index: 90;
       opacity: 0;
       transform: translateY(10px);
@@ -189,68 +189,13 @@
       box-shadow: 0 4px 20px rgba(0,0,0,0.2);
     }
 
-    #player-controls.show {
+    .music-indicator.show {
       opacity: 1;
       transform: translateY(0);
     }
 
-    .light-theme #player-controls {
+    .light-theme .music-indicator {
       box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    }
-
-    #player-controls h3 {
-      font-size: 14px;
-      margin-bottom: 10px;
-      font-weight: bold;
-      color: var(--secondary-color);
-    }
-
-    .player-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
-
-    .player-row:last-child {
-      margin-bottom: 0;
-    }
-
-    .player-label {
-      font-size: 12px;
-      color: var(--accent-color);
-    }
-
-    #volume-slider {
-      width: 120px;
-      accent-color: var(--accent-color);
-    }
-
-    #play-pause {
-      padding: 6px 12px;
-      background-color: var(--accent-color);
-      color: var(--bg-color);
-      border: none;
-      border-radius: 4px;
-      font-size: 12px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      transition: background-color 0.2s;
-    }
-
-    #play-pause:hover {
-      background-color: var(--secondary-color);
-    }
-
-    .light-theme #play-pause {
-      color: #fff;
-    }
-
-    #time-display {
-      font-size: 11px;
-      color: var(--accent-color);
     }
   </style>
 </head>
@@ -370,7 +315,7 @@
     </div>
   </div>
 
-  <!-- Music Player Controls -->
+  <!-- Controls Container -->
   <div class="controls-container">
     <button id="theme-toggle" class="control-button">
       <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -394,22 +339,9 @@
     </button>
   </div>
 
-  <!-- Player Controls Panel -->
-  <div id="player-controls">
-    <h3>ĐIỀU KHIỂN NHẠC</h3>
-    <div class="player-row">
-      <button id="play-pause" class="flex items-center">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
-          <polygon points="5 3 19 12 5 21 5 3"></polygon>
-        </svg>
-        Phát
-      </button>
-      <div class="text-xs text-[var(--accent-color)]" id="time-display">0:00 / 0:00</div>
-    </div>
-    <div class="player-row">
-      <span class="player-label">Âm lượng:</span>
-      <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.7" class="w-32" />
-    </div>
+  <!-- Music Indicator -->
+  <div id="music-indicator" class="music-indicator">
+    <span id="music-status">Nhạc đang phát...</span>
   </div>
 
   <audio id="background-music"></audio>
@@ -431,68 +363,36 @@
     const musicControlButton = document.getElementById("music-control");
     const musicIconOn = document.getElementById("music-icon-on");
     const musicIconOff = document.getElementById("music-icon-off");
-    const playPauseButton = document.getElementById("play-pause");
-    const volumeSlider = document.getElementById("volume-slider");
-    const timeDisplay = document.getElementById("time-display");
     const backgroundMusic = document.getElementById("background-music");
-    const playerControls = document.getElementById("player-controls");
+    const musicIndicator = document.getElementById("music-indicator");
+    const musicStatus = document.getElementById("music-status");
     
     // Set the music URL (Google Drive direct link)
     const musicUrl = "https://drive.google.com/uc?export=download&id=1m-yybORGkrxv_lCLnQis8MIrCNmX2VwU";
     backgroundMusic.src = musicUrl;
+    backgroundMusic.volume = 0.7;
     
     let isMusicPlaying = false;
     
-    // Toggle player controls visibility
+    // Toggle music play/pause
     musicControlButton.addEventListener("click", () => {
-      playerControls.classList.toggle("show");
-    });
-    
-    // Play/Pause button
-    playPauseButton.addEventListener("click", () => {
       if (isMusicPlaying) {
         backgroundMusic.pause();
-        playPauseButton.innerHTML = `
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
-            <polygon points="5 3 19 12 5 21 5 3"></polygon>
-          </svg>
-          Phát
-        `;
+        musicStatus.textContent = "Nhạc đã tạm dừng";
       } else {
         backgroundMusic.play();
-        playPauseButton.innerHTML = `
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
-            <rect x="6" y="4" width="4" height="16"></rect>
-            <rect x="14" y="4" width="4" height="16"></rect>
-          </svg>
-          Tạm dừng
-        `;
+        musicStatus.textContent = "Nhạc đang phát...";
       }
+      
+      // Show indicator
+      musicIndicator.classList.add("show");
+      
+      // Hide indicator after 2 seconds
+      setTimeout(() => {
+        musicIndicator.classList.remove("show");
+      }, 2000);
+      
       isMusicPlaying = !isMusicPlaying;
-      updateMusicIcons();
-    });
-    
-    // Volume control
-    volumeSlider.addEventListener("input", () => {
-      backgroundMusic.volume = volumeSlider.value;
-    });
-    
-    // Update time display
-    backgroundMusic.addEventListener("timeupdate", () => {
-      const currentTime = formatTime(backgroundMusic.currentTime);
-      const duration = formatTime(backgroundMusic.duration);
-      timeDisplay.textContent = `${currentTime} / ${duration}`;
-    });
-    
-    // Music ended
-    backgroundMusic.addEventListener("ended", () => {
-      isMusicPlaying = false;
-      playPauseButton.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
-          <polygon points="5 3 19 12 5 21 5 3"></polygon>
-        </svg>
-        Phát lại
-      `;
       updateMusicIcons();
     });
     
@@ -505,13 +405,6 @@
         musicIconOn.classList.add("hidden");
         musicIconOff.classList.remove("hidden");
       }
-    }
-    
-    function formatTime(seconds) {
-      if (isNaN(seconds)) return "0:00";
-      const min = Math.floor(seconds / 60);
-      const sec = Math.floor(seconds % 60);
-      return `${min}:${sec < 10 ? '0' : ''}${sec}`;
     }
     
     // Theme toggle functionality
